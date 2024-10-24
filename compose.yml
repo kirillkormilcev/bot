@@ -1,0 +1,17 @@
+services:
+  bot-db:
+    image: postgres:14.4-alpine
+    container_name: bot-db-container
+    restart: always
+    volumes:
+      - bot-db:/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: bot_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+volumes:
+  bot-db:
