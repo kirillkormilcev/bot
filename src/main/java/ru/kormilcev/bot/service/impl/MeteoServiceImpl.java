@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.kormilcev.bot.config.WeatherBotProps;
+import ru.kormilcev.bot.service.ChatHistoryService;
 import ru.kormilcev.bot.service.MeteoService;
 
 @Service
@@ -18,6 +19,7 @@ public class MeteoServiceImpl implements MeteoService {
 
   RestTemplate restTemplate;
   WeatherBotProps props;
+  ChatHistoryService chatHistoryService;
 
   @Override
   public SendMessage getWeather(Update update) {
@@ -59,8 +61,11 @@ public class MeteoServiceImpl implements MeteoService {
         sendMessage.setText("Не удалось получить данные.");
       }
     } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
+      sendMessage.setText("Введите корректную локацию.");
+      }
+
+    chatHistoryService.save(update, sendMessage);
+
     return sendMessage;
   }
 }

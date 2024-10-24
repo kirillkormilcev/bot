@@ -1,5 +1,6 @@
 package ru.kormilcev.bot.util;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,10 +18,10 @@ public class LoggingAspect {
   @Pointcut("""
 within(ru.kormilcev.bot..*)
 """)
-  public void anyMethodsExceptJwtFilter() {}
+  public void anyMethods() {}
 
   @Before("""
-      anyMethodsExceptJwtFilter()
+      anyMethods()
       && !@annotation(org.springframework.scheduling.annotation.Scheduled)
       """)
   public void logBefore(JoinPoint joinPoint){
@@ -29,29 +30,24 @@ within(ru.kormilcev.bot..*)
     log.info("{}.{}", className, methodName);
   }
 
-  @AfterReturning(value = "anyMethodsExceptJwtFilter()", returning = "returning")
+  @AfterReturning(value = "anyMethods()", returning = "returning")
   public void logAfter(JoinPoint joinPoint, Object returning) {
     String className = joinPoint.getSignature().getDeclaringTypeName();
     String methodName = joinPoint.getSignature().getName();
 
-    if (joinPoint.getArgs().length == 0) {
-      if (returning != null) {
-        log.debug("{}.{}() returning: {}", className, methodName, returning);
-      } else {
-        log.debug("{}.{}()", className, methodName);
-      }
-    } else {
-      Object[] args = joinPoint.getArgs();
+    StringBuilder logMessage = new StringBuilder(className).append(".").append(methodName);
 
-      if (returning != null) {
-        log.debug("{}.{}(args: {}) returning: {}", className, methodName, args, returning);
-      } else {
-        log.debug("{}.{}(args: {})", className, methodName, args);
-      }
+    if (joinPoint.getArgs().length > 0) {
+      logMessage.append("(args: ").append(Arrays.toString(joinPoint.getArgs())).append(")");
     }
+    if (returning != null) {
+      logMessage.append("(returning: ").append(returning).append(".");
+    }
+
+    log.debug(logMessage.toString());
   }
 
-  @AfterThrowing(value = "anyMethodsExceptJwtFilter()", throwing = "e")
+  @AfterThrowing(value = "anyMethods()", throwing = "e")
   public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
     String eName = e.getClass().getName();
     String className = joinPoint.getSignature().getDeclaringTypeName();
