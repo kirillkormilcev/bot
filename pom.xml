@@ -12,7 +12,7 @@
   <groupId>ru.kormilcev</groupId>
   <artifactId>bot</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>bot</name>
   <description>bot</description>
   <url/>
